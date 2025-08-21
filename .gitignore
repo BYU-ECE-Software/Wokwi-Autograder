@@ -1,0 +1,3 @@
+build/
+.venv/
+load_idf_py.ps1

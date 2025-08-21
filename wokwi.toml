@@ -1,0 +1,15 @@
+# Wokwi Configuration File
+# Reference: https://docs.wokwi.com/vscode/project-config
+[wokwi]
+version = 1
+firmware = './build/wokwi_button_led.bin'
+elf = './build/wokwi_button_led.elf'
+
+[project]
+name="esp32-button-led"
+
+[simulation]
+timeout="8s"
+
+[serial]
+capture="serial.log"
