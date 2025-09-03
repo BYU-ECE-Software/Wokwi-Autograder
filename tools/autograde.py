@@ -3,6 +3,8 @@ import asyncio, os, pathlib, difflib, sys
 from wokwi_client import WokwiClient, GET_TOKEN_URL
 from wokwi_client.serial import monitor_lines
 
+# Remove main.c from student view, figure out a way to import student code into autograder and then Get VCD output from logic analyzer
+
 EXPECTED = pathlib.Path("tests/expected_serial.txt").read_text().splitlines()
 TIMEOUT_S = 6.0
 
@@ -86,21 +88,66 @@ async def main():
     except asyncio.TimeoutError:
         print("[autograde] Timeout waiting for DONE", file=sys.stderr)
 
-    if not sim_task.done():
-        sim_task.cancel()
+    # try:
+    #     await client.pause_simulation()
+    # except Exception as e:
+    #     print(f"[autograde] pause_simulation failed: {e!r}", file=sys.stderr)
+
+    # client.stop_serial_monitors()
+    # await client.stop_simulation()
+    # await client.pause_simulation()
+    # await client.stop_simulation()
+    # await client.disconnect()
+
+    print("Stopped Sim!")
+
+    #vcd_path = pathlib.Path("tests") / "Lab1.vcd"
+    # Prefer the expected name, but fall back to defaults in case attrs didn’t apply
+    for name in ("Lab1.vcd", "wokwi-logic.vcd", "Lab1.vcd.vcd"):
         try:
-            await sim_task
-        except asyncio.CancelledError:
-            pass
-    
+            await client.download_file(name)#, local_path=vcd_path)
+            print(f"[autograde] downloaded {name} -> {"HERE"}") #Formally VCD Path
+            break
+        except Exception as e:
+            last_err = e
+    else:
+        print(f"[autograde] could not find VCD (tried Lab1.vcd, wokwi-logic.vcd, Lab1.vcd.vcd). Last error: {last_err}", file=sys.stderr)
+
+    # Pull down the VCD produced by the logic analyzer
+    # vcd_name = "Lab1.vcd"  # matches attrs.filename + ".vcd"
+    # vcd_path = pathlib.Path("tests") / "Lab1.vcd"
+    # await client.download_file(vcd_name, local_path=vcd_path)
+
+    # await client.stop_simulation()
     await client.disconnect()
 
-    if not cap_task.done():
-        cap_task.cancel()
-        try:
-            await cap_task
-        except asyncio.CancelledError:
-            pass
+    try:
+        from vcdvcd import VCDVCD
+        vcd = VCDVCD(str(vcd_path), only_sigs=True)
+        # Examples of channel names:
+        #   vcd.signals -> list of hierarchical names; Wokwi sets them
+        #   If you set channelNames, you’ll find "LED" and "BTN".
+        # Quick autograde idea: check that BTN has two rising edges and
+        # LED goes high-low-high in response with plausible timing.
+        # (Implement your preferred checks here)
+    except Exception as e:
+        print(f"[autograde] VCD parse warning: {e}", file=sys.stderr)
+
+    # if not sim_task.done():
+    #     sim_task.cancel()
+    #     try:
+    #         await sim_task
+    #     except asyncio.CancelledError:
+    #         pass
+    
+    # await client.disconnect()
+
+    # if not cap_task.done():
+    #     cap_task.cancel()
+    #     try:
+    #         await cap_task
+    #     except asyncio.CancelledError:
+    #         pass
 
     # try:
     #     await asyncio.wait_for(done_event.wait(), timeout=TIMEOUT_S)
@@ -128,19 +175,21 @@ async def main():
         return all(any(x == y for y in it) for x in a)
     ok = subseq(EXPECTED, captured)
 
-    # # Always write what we saw
-    pathlib.Path("tests").mkdir(exist_ok=True)
-    with open("tests/captured_serial.txt", "w") as f:
-        f.write("\n".join(captured))
+    # # # Always write what we saw
+    # pathlib.Path("tests").mkdir(exist_ok=True)
+    # with open("tests/captured_serial.txt", "w") as f:
+    #     f.write("\n".join(captured))
 
-    if not ok:
-        print("\n=== DIFF EXPECTED vs ACTUAL ===", file=sys.stderr)
-        diff = difflib.unified_diff(EXPECTED, captured, fromfile="expected", tofile="actual", lineterm="")
-        print("\n".join(diff), file=sys.stderr)
-        await client.disconnect()
-        sys.exit(1)
+    # if not ok:
+    #     print("\n=== DIFF EXPECTED vs ACTUAL ===", file=sys.stderr)
+    #     diff = difflib.unified_diff(EXPECTED, captured, fromfile="expected", tofile="actual", lineterm="")
+    #     print("\n".join(diff), file=sys.stderr)
+    #     await client.disconnect()
+    #     sys.exit(1)
 
     # await client.disconnect()
+
+
 
 if __name__ == "__main__":
     asyncio.run(main())
