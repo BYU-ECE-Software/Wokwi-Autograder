@@ -36,7 +36,7 @@
       "id": "logic1",
       "top": 19.55,
       "left": 211.2,
-      "attrs": { "filename": "Lab1", "channelNames": "LED,BTN", "bufferSize": "8192", "triggerMode": "off" }
+      "attrs": { "channelNames": "LED,BTN", "bufferSize": "8192", "triggerMode": "off" }
     }
   ],
   "connections": [

@@ -21,6 +21,12 @@ async def drive_button(client):
         except Exception as e:
             print(f"[autograde] set_control press failed: {e!r}", file=sys.stderr)
 
+        led = await client.read_pin(part="esp", pin="D26")  # MCU LED pin, just to see if it works
+        button = await client.read_pin(part="esp", pin="D4")
+        p = await client.read_pin(part="esp", pin="D5")
+
+        print(f"[debug] at press@{t_press:.3f}s LED={led}, BTN={button}, D5={p}")
+
         await client.wait_until_simulation_time(t_release + 0.002)
         try:
             await client.set_control(part="btn1", control="pressed", value=0)
@@ -30,8 +36,8 @@ async def drive_button(client):
         except Exception as e:
             print(f"[autograde] set_control release failed: {e!r}", file=sys.stderr)
     
-    await press_at(1.1, 1.3)  # initial press
-    await press_at(1.7, 2.1)  # second press
+    await press_at(.5, .7)  # initial press
+    await press_at(.9, 1.1)  # second press
 
 async def main():
     token = os.getenv("WOKWI_CLI_TOKEN")
@@ -101,93 +107,9 @@ async def main():
 
     print("Stopped Sim!")
 
-    #vcd_path = pathlib.Path("tests") / "Lab1.vcd"
-    # Prefer the expected name, but fall back to defaults in case attrs didn’t apply
-    for name in ("Lab1.vcd", "wokwi-logic.vcd", "Lab1.vcd.vcd"):
-        try:
-            await client.download_file(name)#, local_path=vcd_path)
-            print(f"[autograde] downloaded {name} -> {"HERE"}") #Formally VCD Path
-            break
-        except Exception as e:
-            last_err = e
-    else:
-        print(f"[autograde] could not find VCD (tried Lab1.vcd, wokwi-logic.vcd, Lab1.vcd.vcd). Last error: {last_err}", file=sys.stderr)
-
-    # Pull down the VCD produced by the logic analyzer
-    # vcd_name = "Lab1.vcd"  # matches attrs.filename + ".vcd"
-    # vcd_path = pathlib.Path("tests") / "Lab1.vcd"
-    # await client.download_file(vcd_name, local_path=vcd_path)
-
-    # await client.stop_simulation()
+   
     await client.disconnect()
 
-    try:
-        from vcdvcd import VCDVCD
-        vcd = VCDVCD(str(vcd_path), only_sigs=True)
-        # Examples of channel names:
-        #   vcd.signals -> list of hierarchical names; Wokwi sets them
-        #   If you set channelNames, you’ll find "LED" and "BTN".
-        # Quick autograde idea: check that BTN has two rising edges and
-        # LED goes high-low-high in response with plausible timing.
-        # (Implement your preferred checks here)
-    except Exception as e:
-        print(f"[autograde] VCD parse warning: {e}", file=sys.stderr)
-
-    # if not sim_task.done():
-    #     sim_task.cancel()
-    #     try:
-    #         await sim_task
-    #     except asyncio.CancelledError:
-    #         pass
-    
-    # await client.disconnect()
-
-    # if not cap_task.done():
-    #     cap_task.cancel()
-    #     try:
-    #         await cap_task
-    #     except asyncio.CancelledError:
-    #         pass
-
-    # try:
-    #     await asyncio.wait_for(done_event.wait(), timeout=TIMEOUT_S)
-    # except asyncio.TimeoutError:
-    #     print("\n[autograde] Timeout waiting for DONE", file=sys.stderr)
-
-    # Cleanup capture task (don’t hang if it’s still running)
-    # if not cap_task.done():
-    #     cap_task.cancel()
-    #     try:
-    #         await cap_task
-    #     except asyncio.CancelledError:
-    #         pass
-
-    # Optional: sanity check MCU LED pin after final release (should be 0)
-    # try:
-    #     pin = await client.read_pin(part="esp", pin="D26")
-    #     # pin["value"] can be inspected/logged if desired
-    # except Exception:
-    #     pass
-
-    # Compare serial with expected (loose: ensure lines appear in order)
-    def subseq(a, b):
-        it = iter(b)
-        return all(any(x == y for y in it) for x in a)
-    ok = subseq(EXPECTED, captured)
-
-    # # # Always write what we saw
-    # pathlib.Path("tests").mkdir(exist_ok=True)
-    # with open("tests/captured_serial.txt", "w") as f:
-    #     f.write("\n".join(captured))
-
-    # if not ok:
-    #     print("\n=== DIFF EXPECTED vs ACTUAL ===", file=sys.stderr)
-    #     diff = difflib.unified_diff(EXPECTED, captured, fromfile="expected", tofile="actual", lineterm="")
-    #     print("\n".join(diff), file=sys.stderr)
-    #     await client.disconnect()
-    #     sys.exit(1)
-
-    # await client.disconnect()
 
 
 

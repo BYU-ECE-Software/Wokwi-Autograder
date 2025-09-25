@@ -1,42 +1,31 @@
-ets Jul 29 2019 12:21:46
-
-rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
-configsip: 0, SPIWP:0xee
-clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
-mode:DIO, clock div:2
-load:0x3fff0030,len:1156
-load:0x40078000,len:11456
-ho 0 tail 12 room 4
-load:0x40080400,len:2972
-entry 0x400805dc
 I (319) cpu_start: Multicore app
-I (327) cpu_start: Pro 
-cpu start user code
-I (327) cpu_start: cpu freq: 160000000 Hz
+I (327) cpu_start: Pro cpu start user code
+I (327) cpu_start: cp
+u freq: 160000000 Hz
 I (328) app_init: Application information:
 I (328) app_init: Project name:     wokwi_button_led
 I (332) app_init: App version:      1
 I (335) app_init: Compile time:     Aug 20 2025 12:18:24
 I (340) app_init: ELF file SHA256:  1bb4acbb3...
 I (345) app_init: ESP-IDF:          v5.4.2
-I (349) efuse_init: Min chi
-p rev:     v0.0
-I (352) efuse_init: Max chip rev:     v3.99 
+I (349) efuse_init: Min chip rev:     v0.0
+I (352) efuse_init: Max chip 
+rev:     v3.99 
 I (356) efuse_init: Chip rev:         v3.0
 I (361) heap_init: Initializing. RAM available for dynamic allocation:
 I (367) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
 I (372) heap_init: At 3FFB2CB0 len 0002D350 (180 KiB): DRAM
 I (377) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
-I (382) heap_init: At 3
-FFE4350 len 0001BCB0 (111 KiB): D/IRAM
-I (388) heap_init: At 4008CDB0 len 00013250 (76 KiB): IRAM
+I (382) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (388
+) heap_init: At 4008CDB0 len 00013250 (76 KiB): IRAM
 I (395) spi_flash: detected chip: gd
 I (396) spi_flash: flash io: dio
 I (401) main_task: Started on CPU0
 I (411) main_task: Calling app_main()
 I (411) gpio: GPIO[26]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 
-I (411) gpio: GPIO[4]| InputEn: 1| Output
-En: 0| OpenDrain: 0| Pullup: 1| Pulldown: 0| Intr:0 
+I (411) gpio: GPIO[4]| InputEn: 1| OutputEn: 0| OpenDrain: 0| Pullup: 1| Pulldown: 0| I
+ntr:0 
 READY
 0
 100
@@ -49,16 +38,12 @@ READY
 800
 900
 1000
-EVENT: LED On
-EVENT: Button Press
-
-EVENT: LED Off
-EVENT: Button Release
 1100
-EVENT: LED On
+EVENT: LED On
+
 EVENT: Button Press
 1200
 1300
 EVENT: LED Off
-EVENT: Button Release
-DONE
+EVENT: Button Release
+1400
